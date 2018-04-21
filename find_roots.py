@@ -4,14 +4,16 @@ from itertools import izip
 from math import fabs
 import itertools
 
+# Polinomios sao representados como uma lista de coeficientes, exemplo: 2*x^3 + 3*x^2 + 1 := [1,0,3,2]
+
+# Calcula divisao de dois polinomios num/dev retorna o quociente e o resto em uma lista
 
 def normalize(poly):
     while poly and poly[-1] == 0:
         poly.pop()
     if poly == []:
         poly.append(0)
-
-
+	
 def poly_divmod(num, den):
     num = num[:]
     normalize(num)
@@ -35,12 +37,18 @@ def poly_divmod(num, den):
     normalize(num)
     return quot, num
 
- 
+
+# Testar se o reultado está correto: ([-4.0, 1.0], [-28.0, 7.0])
+poly_divmod([-24,6,-4,1],[-1,0,1])
+
+
+
+# Calcula a derivada formal de um polinomio
 def derivative(poly):
 	dx = [poly[i] * i for i in range(1, len(poly))]
 	return dx
 
-
+# Calcula a cadeia de sturm de um polinomio: cadeia composta dos restos da divisão do polinomio com a derivada dele http://www2.washjeff.edu/users/mwoltermann/Dorrie/24.pdf
 def sturm_chain(poly):
 	chain = []
 	chain.append(poly)
@@ -55,7 +63,11 @@ def sturm_chain(poly):
 		i+=1
 	return chain
 
+# Verificar se o resultado está correto: [[-1, -3, 0, 0, 0, 1], [-3, 0, 0, 0, 5], [1.0, 2.4], [2.849295910493827]]
+sturm_chain([-1,-3,0,0,0,1])
 
+
+# Calcula polinomio em um ponto
 def evaluate_poly(poly, x): 
 	n, tmp = 0, 0
 	for a in poly:
@@ -63,7 +75,7 @@ def evaluate_poly(poly, x):
 		n += 1
 	return tmp
 
-
+# Conta a quantidade de mudancas de sinais dos numeros em uma lista
 def countSignChanges(seq):
 	count = 0
 	if (len(seq) > 1):
@@ -73,11 +85,16 @@ def countSignChanges(seq):
 				count += 1
 	return count
 
+# Verificar se o resultado está correto: no primeiro é 1 e no segundo é 2 
+countSignChanges([0,-1])
+countSignChanges([-1,0,-1])
 
+
+# Recebe uma lista de tuplas [[-10, 1], [-9, 2], [-8, 1], [-7, 1], [-6, 1], [-5, 1], [-4, 1]] e verifica se teve mudança na segunda componente de cada tupla, por exemplo [-10, 1], [-9, 2] teve mudança de 1 para 2, verificar para todos os elementos e guardar as primeiras componentes, neste caso [-10,-9]
 def verify_root(seq):
 	acc = []
 	for i in range(1,len(seq)):
-		change = seq[i-1][1] - seq[i][1] # xor para verificar se os sinais são iguais
+		change = seq[i-1][1] - seq[i][1] 
 		if (change > 0):
 			pair = [seq[i-1][0] , seq[i][0]]
 			acc.append(pair)
