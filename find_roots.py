@@ -13,7 +13,7 @@ def normalize(poly):
         poly.pop()
     if poly == []:
         poly.append(0)
-	
+
 def poly_divmod(num, den):
     num = num[:]
     normalize(num)
@@ -90,7 +90,7 @@ countSignChanges([0,-1])
 countSignChanges([-1,0,-1])
 
 
-# Recebe uma lista de tuplas [[-10, 1], [-9, 2], [-8, 1], [-7, 1], [-6, 1], [-5, 1], [-4, 1]] e verifica se teve mudança na segunda componente de cada tupla, por exemplo [-10, 1], [-9, 2] teve mudança de 1 para 2, verificar para todos os elementos e guardar as primeiras componentes, neste caso [-10,-9]
+# Recebe uma lista de tuplas, exemplo: [[-10, 1], [-9, 1], [-8, 0], [-7, 1], [-6, 1], [-5, 1], [-4, 1]] e verifica se teve mudança na segunda componente de cada tupla, por exemplo de [-9, 1] para [-8, 0] teve mudança de 1 para 0, verificar para todos os elementos e guardar as primeiras componentes, neste caso [-9,-8]
 def verify_root(seq):
 	acc = []
 	for i in range(1,len(seq)):
@@ -101,7 +101,7 @@ def verify_root(seq):
 	return acc
 
 
-
+# Isola todas as raizes de um polinomio em intervalos, procura no intervalo da reta [min,max] andando em sub-intervalos de h = 1
 def isolate_all_roots(poly, min, max):
 	h = 1
 	chain = sturm_chain(poly)
@@ -114,3 +114,7 @@ def isolate_all_roots(poly, min, max):
 		point += h
 	intervals = verify_root(deltas)
 	return intervals
+
+
+# Verificar se está correto: [[-2, -1], [1, 2]]
+isolate_all_roots([-4,0,1],-10,10)
