@@ -6,7 +6,7 @@ import itertools
 
 # Polinomios sao representados como uma lista de coeficientes, exemplo: 2*x^3 + 3*x^2 + 1 := [1,0,3,2]
 
-# Calcula divisao de dois polinomios num/dev retorna o quociente e o resto em uma lista
+# Calcula divisao de dois polinomios num/den retorna o quociente e o resto em uma lista
 
 def normalize(poly):
     while poly and poly[-1] == 0:
