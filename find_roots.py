@@ -118,3 +118,47 @@ def isolate_all_roots(poly, min, max):
 
 # Verificar se está correto: [[-2, -1], [1, 2]]
 isolate_all_roots([-4,0,1],-10,10)
+
+
+
+
+
+
+# Aplica o algoritmo de Newton para encotrar uma raiz em um dado intervalo
+def newton_raphson(poly,interval):
+	x = float((interval[1] - interval[0])/2) + interval[0]   # o metodo comeca pelo ponto medio do intervalo
+	n = 100 # numero max de interacoes
+	accuracy = 0.001
+	sequence = [x] # sequencia que armazena as interacoes
+	for i in range(n):
+		if (evaluate_poly(derivative(poly),sequence[i]) == 0):    # se a derivada no ponto for zero o metodo para
+			break
+		else:
+			next_ite = sequence[i] - (evaluate_poly(poly,sequence[i]) / evaluate_poly(derivative(poly),sequence[i]))
+			sequence.append(next_ite)
+			if ((abs(sequence[i] - sequence[i + 1]) < 0.0001) & (evaluate_poly(poly,sequence[i + 1]) < 0.0001)):
+				break
+	return sequence[-1]
+
+
+# Encontra o intervalo max onde buscar as raizes
+def root_radius(poly):
+	poly = [float(x) for x in poly]
+	monic_poly = [abs(x/poly[-1]) for x in poly]
+	radius = 3 + max(monic_poly[:-1])
+	return radius
+
+
+# Finalmente encontra todas as raizes
+def find_all_roots(poly):
+	r = root_radius(poly)
+	intervals = isolate_all_roots(poly, -r, r)
+	roots = []
+	for interval in intervals:
+		root = newton_raphson(poly, interval)
+		roots.append(root)
+	return roots
+
+# Verificar se está correto: [-140.90067257035105, -0.8362496810147937]
+find_all_roots([1,2,3,4,56,7,8,8,9,6,5,4,2,2,42,423,3])
+
