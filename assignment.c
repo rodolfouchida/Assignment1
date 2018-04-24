@@ -50,7 +50,6 @@ typedef struct val_t val;
 /* Definicao */
 #define E(x, i) (x)->coef[i]
 
-/* Metodos especificos para C  */ 
  
 /* passing in negative power to have a zeroed poly */
 poly p_new(int power, ...)
@@ -183,7 +182,6 @@ void val_insert(double a, val *it){
     it->seg=nova;
 }
 
-/* Metodos convertidos  */ 
 
 /* p: poly;  d: divisor;  r: remainder; returns quotient */
 poly p_div(poly p, poly d, poly* r)
@@ -324,7 +322,7 @@ tupla verify_root(interval *it)
 
 tupla isolate_all_roots(poly polinomio, double min, double max)
 {
-    double h = 1;
+    double h = 0.2;
     double point = min;
     chain s_chain = sturm_chain(polinomio);
         
@@ -383,9 +381,9 @@ double newton_raphson(poly p, tupla t)
 {
     double x = (t.b - t.a)/2 + t.a;
 
-    int n = 100;
+    int n = 200;
     double next_ite;
-    double accuracy=0.000001;
+    double accuracy=0.0001;
 
     for(int i=0;i < n; i++){
         if(p_eval(p_dev(p), x) == 0)
@@ -407,7 +405,7 @@ double newton_raphson(poly p, tupla t)
 
 double root_radius(poly p)
 {
-    double resp = 3.0 + max(p->power+1, p->coef);
+    double resp = 2.0 + max(p->power+1, p->coef);
     return resp;
 }
 

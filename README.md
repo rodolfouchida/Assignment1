@@ -1,7 +1,8 @@
 # Assignment1
 
-Para compilar código assingment.c:
-$ gcc assignment.c -o output -lm
-  
+Para adicionar um polinômio basta editar o arquivo teste.txt e inserir os coeficientes em cada linha pela ordem das potências.
+
 Exemplo de utilização:
 $ ./output teste.txt
+
+
