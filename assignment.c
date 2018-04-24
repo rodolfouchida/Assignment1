@@ -172,7 +172,7 @@ void val_print(val it)
 {
     val *p;
     for(p=&it; p != NULL;p = p->seg)
-        printf("%.5f ", p->val);
+        printf("%.10f ", p->val);
 }
 
 void val_insert(double a, val *it){
@@ -317,6 +317,7 @@ tupla verify_root(interval *it)
             }
         }
     }
+    
     return *ac.seg;
 }
 
@@ -372,9 +373,9 @@ tupla isolate_all_roots(poly polinomio, double min, double max)
         
         point += h;
     }
-    
+
     tupla bar = verify_root(&it);
-    
+
     return bar;
 }
 
@@ -384,7 +385,7 @@ double newton_raphson(poly p, tupla t)
 
     int n = 100;
     double next_ite;
-    double accuracy=0.0001;
+    double accuracy=0.000001;
 
     for(int i=0;i < n; i++){
         if(p_eval(p_dev(p), x) == 0)
@@ -421,7 +422,7 @@ val find_all_roots(poly p)
 
     tupla foo3 = isolate_all_roots(p, -r, r);
     //tupla_print(&foo3);
-
+    
     tupla *t;
     
     val root;
@@ -446,87 +447,45 @@ int main(int argc, char **argv)
     char * line = NULL;
     size_t len = 0;
     ssize_t read;
+
+    val *root;
+    root = malloc(sizeof(val));
+    root->val = 0.0;
+    root->seg = NULL;
     
-    val root;
-    root.val = 0.0;
-    root.seg = NULL;
-    val *roots;
-    roots=&root;
-    
+    val *next;
+    next=root;
+        
     int lines=0;
+    double valor;
+    
     while ((read = getline(&line, &len, f)) != -1) {
         printf("%s", line);
-        double valor;
         sscanf(line, "%lf", &valor);
         printf("valor %.2f\n", valor);
         lines++;
-        val_insert(valor, roots);
+        val_insert(valor, next);
+        next=next->seg;
     }
     fclose(f);  /* close the file */ 
     printf("[lines] %d\n", lines);
     
     val *p;
-    int i = lines-1;
-    poly polinomio = p_new(-i);
+    int i = 0;
+    poly polinomio = p_new(-(lines-1));
     p_print(polinomio);
-    for(p=roots->seg; p != NULL;p = p->seg){
+    for(p=root->seg; p != NULL;p = p->seg){
         //printf("%.5f ", p->val);
         E(polinomio, i) = p->val;
-        i--;
+        i++;
     }
     p_print(polinomio);
     printf("%d", polinomio->power);
-    
-/*
-    printf("[*] TESTES\n");
-
-    poly p1 = p_new(3, -24., 6., -4., 1.);
-    poly d1 = p_new(2, -1., 0., 1.);
-    poly r1;
-    poly q1 = p_div(p1, d1, &r1);
-    printf("\n[poldiv]\n");
-    printf("[-24,6,-4,1]    poly: "); p_print(p1);
-    printf("[-1,0,1]        div:  "); p_print(d1);
-    printf("[-4,1]          quot: "); p_print(q1);
-    printf("[-28, 7]        rem:  "); p_print(r1);    
-    p_del(p1);
-    p_del(q1);
-    p_del(r1);
-    p_del(d1);
-
-    poly p2 = p_new(5, -1., -3., 0., 0., 0., 1.);
-    printf("\n[sturm_chain]\n");
-    chain s_chain1 = sturm_chain(p2);
-    printf("        poly: "); p_print(p2);
-    chain_print(&s_chain1);
-    p_del(p2);
-
-    printf("\n[countSignChanges]\n");
-    poly p3 = p_new(1, 0., -1.);
-    poly q3 = p_new(2, -1., 0., -1.);
-    printf("        poly: "); p_print(p3);
-    printf("        count: %d\n", p_countSignChanges(p3));
-    printf("        poly: "); p_print(q3);
-    printf("        count: %d\n", p_countSignChanges(q3));
-    p_del(p3);
-    p_del(q3);    
-
-    printf("\n[isolate_all_roots]\n");
-    poly p4 = p_new(2, -4., 0., 1.);
-    tupla foo1 = isolate_all_roots(p4, -10, 10);
-    tupla_print(&foo1);
-    p_del(p4);
-
-    printf("\n[isolate_all_roots #2]\n");
-    poly p5 = p_new(16, 1.,2.,3.,4.,56.,7.,8.,8.,9.,6.,5.,4.,2.,2.,42.,423.,3.);
-    tupla foo2 = isolate_all_roots(p5, -150, 150);
-    tupla_print(&foo2);
-    p_del(p5);
-*/
+ 
     printf("\n[find_all_roots]\n");
-    poly final = p_new(16, 1.,2.,3.,4.,56.,7.,8.,8.,9.,6.,5.,4.,2.,2.,42.,423.,3.);
-    printf("[polinomio]: ");p_print(final);
-    val t = find_all_roots(final);
+    //poly final = p_new(16, 1.,2.,3.,4.,56.,7.,8.,8.,9.,6.,5.,4.,2.,2.,42.,423.,3.);
+    printf("[polinomio]: ");p_print(polinomio);
+    val t = find_all_roots(polinomio);
     printf("[raizes]: ");val_print(t);
     printf("\n");
 
