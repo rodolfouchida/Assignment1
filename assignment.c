@@ -40,6 +40,13 @@ struct tupla_t{
 };
 typedef struct tupla_t tupla;
 
+// lista de double
+struct val_t {
+    double val;
+    struct val_t *seg;
+};
+typedef struct val_t val;
+
 /* Definicao */
 #define E(x, i) (x)->coef[i]
 
@@ -152,13 +159,28 @@ void tupla_print(tupla *it)
 
 double max(int len, double *tmp)
 {
-    int i, max=abs(tmp[0]/tmp[len-1]);
+    double maxValue=fabs(tmp[0]/tmp[len-1]);
     for(int i=0; i < len-1; i++){
-        if(abs(tmp[i]/tmp[len-1]) < abs(tmp[i+1]/tmp[len-1])){
-            max = abs(tmp[i+1]/tmp[len-1]);
+        if(fabs(tmp[i]/tmp[len-1]) < fabs(tmp[i+1]/tmp[len-1])){
+            maxValue = fabs(tmp[i+1]/tmp[len-1]);
         }
     }
-    return max;
+    return maxValue;
+}
+
+void val_print(val it)
+{
+    val *p;
+    for(p=&it; p != NULL;p = p->seg)
+        printf("%.5f ", p->val);
+}
+
+void val_insert(double a, val *it){
+    val *nova;
+    nova = malloc(sizeof(val));
+    nova->val=a;
+    nova->seg=it->seg;
+    it->seg=nova;
 }
 
 /* Metodos convertidos  */ 
@@ -356,38 +378,106 @@ tupla isolate_all_roots(poly polinomio, double min, double max)
     return bar;
 }
 
-void newton_raphson(poly p, tupla t)
+double newton_raphson(poly p, tupla t)
 {
     double x = (t.b - t.a)/2 + t.a;
 
     int n = 100;
-    double tmp;
-    double accuracy=0.001;
+    double next_ite;
+    double accuracy=0.0001;
 
     for(int i=0;i < n; i++){
         if(p_eval(p_dev(p), x) == 0)
             break;
         else{
-            tmp = x;
-            x = x - (p_eval(p, x)/p_eval(p_dev(p), x));
-            if(abs(x-tmp) < accuracy && p_eval(p, x) < accuracy)
+            next_ite = x - (p_eval(p, x)/p_eval(p_dev(p), x));
+            if(fabs(x-next_ite) < accuracy && fabs(p_eval(p, next_ite)) < accuracy){
+                x=next_ite;
                 break;
+            }
+            x=next_ite;
         }
     }
 
-    if(p_eval(p, x) < accuracy)    
-        printf("[!] %.5f\n", x);
+    printf("[!] %.5f\n", p_eval(p, x));
+    return x;
 }
 
 
 double root_radius(poly p)
 {
-    return (double)(3+max(p->power+1, p->coef));
+    double resp = 3.0 + max(p->power+1, p->coef);
+    return resp;
 }
 
- 
-int main()
+
+val find_all_roots(poly p)
 {
+    chain s_chain2 = sturm_chain(p);
+    //printf("        poly: "); p_print(p);
+    //chain_print(&s_chain2);
+
+    double r = root_radius(p);
+
+    tupla foo3 = isolate_all_roots(p, -r, r);
+    //tupla_print(&foo3);
+
+    tupla *t;
+    
+    val root;
+    root.val = 0.0;
+    root.seg = NULL;
+    val *roots;
+    roots=&root;
+    
+    for(t=&foo3; t != NULL;t = t->seg){
+        val_insert(newton_raphson(p, *t), roots);
+    }
+
+    p_del(p); 
+    
+    return *(roots->seg);
+}
+
+int main(int argc, char **argv)
+{
+    FILE *f = fopen(argv[1], "r"); // "r" for read
+    
+    char * line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    
+    val root;
+    root.val = 0.0;
+    root.seg = NULL;
+    val *roots;
+    roots=&root;
+    
+    int lines=0;
+    while ((read = getline(&line, &len, f)) != -1) {
+        printf("%s", line);
+        double valor;
+        sscanf(line, "%lf", &valor);
+        printf("valor %.2f\n", valor);
+        lines++;
+        val_insert(valor, roots);
+    }
+    fclose(f);  /* close the file */ 
+    printf("[lines] %d\n", lines);
+    
+    val *p;
+    int i = lines-1;
+    poly polinomio = p_new(-i);
+    p_print(polinomio);
+    for(p=roots->seg; p != NULL;p = p->seg){
+        //printf("%.5f ", p->val);
+        E(polinomio, i) = p->val;
+        i--;
+    }
+    p_print(polinomio);
+    printf("%d", polinomio->power);
+    
+/*
     printf("[*] TESTES\n");
 
     poly p1 = p_new(3, -24., 6., -4., 1.);
@@ -432,26 +522,12 @@ int main()
     tupla foo2 = isolate_all_roots(p5, -150, 150);
     tupla_print(&foo2);
     p_del(p5);
-
+*/
     printf("\n[find_all_roots]\n");
     poly final = p_new(16, 1.,2.,3.,4.,56.,7.,8.,8.,9.,6.,5.,4.,2.,2.,42.,423.,3.);
-
-    chain s_chain2 = sturm_chain(final);
-    printf("        poly: "); p_print(final);
-    chain_print(&s_chain2);
-
-    printf("        poly: "); p_print(final);
-    double r = root_radius(final);
-
-    tupla foo3 = isolate_all_roots(final, -r, r);
-    tupla_print(&foo3);
-
-    tupla *t;
-    for(t=&foo3; t != NULL;t = t->seg){
-        newton_raphson(final, *t);
-    }
-
-    p_del(final); 
+    val t = find_all_roots(final);
+    val_print(t);
+    printf("\n");
 
     return 0;
 }
