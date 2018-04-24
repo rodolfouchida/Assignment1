@@ -399,7 +399,7 @@ double newton_raphson(poly p, tupla t)
         }
     }
 
-    printf("[!] %.5f\n", p_eval(p, x));
+    //printf("[!] %.5f\n", p_eval(p, x));
     return x;
 }
 
@@ -525,8 +525,9 @@ int main(int argc, char **argv)
 */
     printf("\n[find_all_roots]\n");
     poly final = p_new(16, 1.,2.,3.,4.,56.,7.,8.,8.,9.,6.,5.,4.,2.,2.,42.,423.,3.);
+    printf("[polinomio]: ");p_print(final);
     val t = find_all_roots(final);
-    val_print(t);
+    printf("[raizes]: ");val_print(t);
     printf("\n");
 
     return 0;
